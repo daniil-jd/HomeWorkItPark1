@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- bean factory post processor -->
+    <bean class="ru.itpark.xml.XmlJsonBeanFactoryPostProcessor">
+        <property name="jsonLocation" value="classpath:json/connection.json" />
+    </bean>
+
+    <!-- post service -->
+    <bean class="ru.itpark.xml.XmlPostService" autowire="constructor" p:id = "${id}"/>
+
+    <!-- request clien -->
+    <bean id = "xmlRequestClient" class="ru.itpark.xml.XmlRequestClient" >
+        <property name="json" value="classpath:json/posts.json" />
+    </bean>
+
+    <!-- xml cached annotation bean post processor -->
+    <bean class = "ru.itpark.CachedAnnotationBPP" />
+
+</beans>
