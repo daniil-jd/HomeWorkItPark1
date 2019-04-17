@@ -11,7 +11,7 @@
     <!-- post service -->
     <bean class="ru.itpark.xml.XmlPostService" autowire="constructor" p:id = "${id}"/>
 
-    <!-- request clien -->
+    <!-- request client -->
     <bean id = "xmlRequestClient" class="ru.itpark.xml.XmlRequestClient" >
         <property name="json" value="classpath:json/posts.json" />
     </bean>

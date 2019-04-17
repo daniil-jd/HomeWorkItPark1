@@ -15,12 +15,10 @@ import java.util.Map;
 public class CachedAnnotationBPP implements BeanPostProcessor {
     private final Map<Object, Object> cache = new HashMap<>();
     private final Map<String, Class> classCache = new HashMap<>();
-    private boolean flag = false;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         //если класс содержит аннотацию, сохранить его
-
         for (Method method : bean.getClass().getMethods()) {
             if (method.isAnnotationPresent(Cached.class)) {
                 classCache.put(beanName, bean.getClass());
@@ -31,6 +29,10 @@ public class CachedAnnotationBPP implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        //если среди классов с аннотацией нет данного, то не подменяем вызов метода
+        if (!classCache.containsKey(beanName)) {
+            return bean;
+        }
         //"улучшатель" класса, реализация от спринга (есть еще JDKProxy)
         var enhancer = new Enhancer();
         //устанавливаем классу улучшателю родителя
@@ -43,21 +45,13 @@ public class CachedAnnotationBPP implements BeanPostProcessor {
                         System.out.println("--Cached annotated method intercepted.");
                         return cache.get(Arrays.hashCode(objects));
                     }
-
                     var result = methodProxy.invoke(bean, objects);
                     cache.put(Arrays.hashCode(objects), result);
-
                     return result;
                 }
-                flag = true;
-                return null;
+                return methodProxy.invoke(bean, objects);
             }
         });
-
-        //если среди классов с аннотацией нет данного, то не подменяем вызов метода
-        if (!classCache.containsKey(beanName) && flag) {
-            return bean;
-        }
 
         return enhancer.create();
     }
